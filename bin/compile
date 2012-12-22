@@ -173,6 +173,15 @@ run_npm "install --production"
 run_npm "rebuild"
 echo "Dependencies installed" | indent
 
+echo "-----> Installing ffmpeg and friends"
+FFMPEG_BINARY="http://atmos-s3itch.s3.amazonaws.com/ffmpeg-heroku-cedar-0.0.2.tgz"
+FFMPEG_DIR="vendor/ffmpeg"
+mkdir -p $FFMPEG_DIR
+curl $FFMPEG_BINARY -o - | tar -xz -C $FFMPEG_DIR -f -
+
 echo "-----> Building runtime environment"
 mkdir -p $BUILD_DIR/.profile.d
 echo "export PATH=\"\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\"" > $BUILD_DIR/.profile.d/nodejs.sh
+echo "export PATH=\"vendor/ffmpeg/bin:\$PATH\"" >> $BUILD_DIR/.profile.d/nodejs.sh
+echo "export LDFLAGS=\"-L vendor/ffmpeg/lib $LDFLAGS\"" >> $BUILD_DIR/.profile.d/nodejs.sh
+echo "export LD_LIBRARY_PATH=\"vendor/ffmpeg/lib:$LD_LIBRARY_FLAGS\"" >> $BUILD_DIR/.profile.d/nodejs.sh
